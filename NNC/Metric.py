@@ -6,16 +6,16 @@ class Metric:
         self.metric = metric
         self.p = pMap.get(metric)
         if metric == "chebyshev":
-            def dist(X1 , X2):
+            def dist(X1 : np.ndarray , X2 : np.ndarray)  -> float:
                 return np.max(np.abs(X1 - X2))
             self.func = dist
         else:
             self.func = self.distFunc()
 
     def distFunc(self):
-        def dist(X1 , X2):
-            return np.sqrt(np.sum(np.power(np.abs(X1 - X2) , self.p)),1/self.p)
+        def dist(X1 : np.ndarray , X2 : np.ndarray) -> float:
+            return np.power(np.sum(np.power(np.abs(X1 - X2) , self.p)),1/self.p)
         return dist
 
-    def __call__(self, X1 , X2):
+    def __call__(self, X1 : np.ndarray , X2 : np.ndarray):
         return self.func(X1 , X2)

@@ -15,19 +15,19 @@ class MyTestCase(unittest.TestCase):
     def test_euclidean(self):
         metric = "euclidean"
         dist_function = Metric(metric)
-        self.assertEqual(np.linalg.norm(self.x1 - self.x2), dist_function(self.x1, self.x2))
+        self.assertEqual(27**0.5, dist_function(self.x1, self.x2))
         self.assertEqual(0, dist_function(self.x1, self.x3))
 
     def test_manhattan(self):
         metric = "manhattan"
         dist_function = Metric(metric)
-        self.assertEqual(np.sum(np.abs(self.x1 - self.x2)), dist_function(self.x1, self.x2))
+        self.assertEqual(9, dist_function(self.x1, self.x2))
         self.assertEqual(0, dist_function(self.x1, self.x3))
 
     def test_chebyshev(self):
         metric = "chebyshev"
         dist_function = Metric(metric)
-        self.assertEqual(np.sum(np.abs(self.x1 - self.x2)), dist_function(self.x1, self.x2))
+        self.assertEqual(3, dist_function(self.x1, self.x2))
         self.assertEqual(0, dist_function(self.x1, self.x3))
 
     def test_minkowski(self):
