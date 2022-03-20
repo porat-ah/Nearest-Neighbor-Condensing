@@ -2,8 +2,7 @@ import numpy as np
 
 
 class Metric:
-
-    metrics = ["euclidean", "manhattan", "minkowski", "chebyshev"]
+    METRICS = ["euclidean", "manhattan", "minkowski", "chebyshev"]
 
     def __init__(self, metric="minkowski", p=2):
         pMap = {"euclidean": 2, "manhattan": 1, "minkowski": p}
@@ -15,9 +14,9 @@ class Metric:
 
             self.func = dist
         else:
-            self.func = self.distFunc()
+            self.func = self.dist_func()
 
-    def distFunc(self):
+    def dist_func(self):
         def dist(X1: np.ndarray, X2: np.ndarray) -> float:
             return np.power(np.sum(np.power(np.abs(X1 - X2), self.p)), 1 / self.p)
 

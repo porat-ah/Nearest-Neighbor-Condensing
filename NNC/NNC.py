@@ -1,5 +1,6 @@
 from .Metric import *
 import numpy as np
+from sklearn.preprocessing import minmax_scale
 
 
 class NNC:
@@ -8,8 +9,11 @@ class NNC:
         self.S_gama = set()
         self.algorithm = algorithm
         self.dist = Metric(metric=metric, p=p)
+        self.x1 = None
+        self.x2 = None
 
     def fit(self, X: np.ndarray, y: np.ndarray):
+        X = minmax_scale(X, feature_range=(0, 1))
         groups = []
         for label in np.unique(y):
             groups.append(X[y == label])
@@ -20,11 +24,13 @@ class NNC:
                         margin = self.dist(x1, x2)
                         if self.gama > margin:
                             self.gama = margin
+                            self.x1 = x1
+                            self.x2 = x2
 
     def transform(self, X: np.ndarray, y=None):
         pass
 
-    def fit_transfrom(self, X: np.ndarray, y: np.ndarray):
+    def fit_transform(self, X: np.ndarray, y: np.ndarray):
         pass
 
     def brute(self, X: np.ndarray):
