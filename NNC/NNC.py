@@ -2,10 +2,11 @@ from .Metric import *
 import numpy as np
 from numpy import floor, log
 from sklearn.preprocessing import minmax_scale
+from sklearn.metrics.pairwise import pairwise_distances
 
 
 class NNC:
-    def __init__(self, algorithm="brute", metric="minkowski", p=2):
+    def __init__(self, algorithm="brute", metric="minkowski", p=2, n_jobs=1):
         """
         :param algorithm:{"brute" , "prune"} Algorithm used to compute the cardinality subset.
         :param metric:{"euclidean", "manhattan", "minkowski", "chebyshev"} Distance metric to use for finding gamma.
@@ -19,6 +20,8 @@ class NNC:
         self.dist = Metric(metric=metric, p=p)
         self.x1 = None
         self.x2 = None
+        self.scale = None
+        self.n_jobs = n_jobs
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         """
@@ -29,18 +32,16 @@ class NNC:
         :return: self
         """
         X = minmax_scale(X, feature_range=(0,1))
+        self.scale = self.dist(np.ones_like(X[0]), np.zeros_like(X[0]))
         groups = []
         for label in np.unique(y):
             groups.append(X[y == label])
         for i in range(len(groups)):
             for j in range(i + 1, len(groups)):
-                for x1 in groups[i]:
-                    for x2 in groups[j]:
-                        margin = self.dist(x1, x2)
-                        if self.gamma > margin:
-                            self.gamma = margin
-                            self.x1 = x1
-                            self.x2 = x2
+                i_j_distances = np.min(
+                    pairwise_distances(groups[i], groups[j], metric=self.dist, n_jobs=self.n_jobs) / self.scale)
+                if self.gamma > i_j_distances:
+                    self.gamma = i_j_distances
         return self
 
     def transform(self, X: np.ndarray, y: np.ndarray):
@@ -72,7 +73,7 @@ class NNC:
         self.fit(X, y)
         self.transform(X, y)
 
-    def brute(self, X: np.ndarray):
+    def brute(self, X: np.ndarray, y=None):
         self.S_gamma.append(X[0])
         for p in X:
             b = True
@@ -97,7 +98,8 @@ class NNC:
                 if b:
                     for p_ in X:
                         if (np.any(p != p_)) and (self.dist(p, p_) < np.power(2.0, i) - self.gamma):
-                            np.delete(S_gama, np.where(np.nonzero(np.all(S_gama == p_))))
+                            np.delete(S_gama, np.where(np.atleast_1d(np.all(S_gama == p_)).nonzero()))
+
         return S_gama
 
 
