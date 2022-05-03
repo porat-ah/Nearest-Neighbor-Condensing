@@ -1,8 +1,9 @@
 import numpy as np
+from scipy.spatial.distance import euclidean, chebyshev, minkowski
 
 
 class Metric:
-    METRICS = ["euclidean", "manhattan", "minkowski", "chebyshev"]
+
 
     def __init__(self, metric="minkowski", p=2):
         """
@@ -11,22 +12,10 @@ class Metric:
         :param p: Power parameter for the Minkowski metric. When p = 1, this is equivalent to using manhattan_distance (l1),
         and euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.
         """
-        pMap = {"euclidean": 2, "manhattan": 1, "minkowski": p}
+        FuncMap = {"euclidean": euclidean, "manhattan": lambda x, y: minkowski(x, y, 1),
+                   "minkowski": lambda x, y: minkowski(x, y, p), "chebyshev": chebyshev}
         self.metric = metric
-        self.p = pMap.get(metric)
-        if metric == "chebyshev":
-            def dist(X1: np.ndarray, X2: np.ndarray) -> float:
-                return np.max(np.abs(X1 - X2))
-
-            self.func = dist
-        else:
-            self.func = self.dist_func()
-
-    def dist_func(self):
-        def dist(X1: np.ndarray, X2: np.ndarray) -> float:
-            return np.power(np.sum(np.power(np.abs(X1 - X2), self.p)), 1 / self.p)
-
-        return dist
+        self.func = FuncMap[metric]
 
     def __call__(self, X1: np.ndarray, X2: np.ndarray):
         return self.func(X1, X2)
