@@ -6,10 +6,10 @@ from sklearn.metrics.pairwise import pairwise_distances
 
 
 class NNC:
-    def __init__(self, algorithm="brute", metric="minkowski", p=2, n_jobs=1):
+    def __init__(self, algorithm="brute", metric="minkowski", p= 2, n_jobs=1):
         """
         :param algorithm:{"brute" , "prune"} Algorithm used to compute the cardinality subset.
-        :param metric:{"euclidean", "manhattan", "minkowski", "chebyshev"} Distance metric to use for finding gamma.
+        :param metric:{"euclidean", "manhattan", "minkowski", "chebyshev"} or a callable function. Distance metric to use for finding gamma.
         The default metric is minkowski, and with p=2 is equivalent to the standard Euclidean metric.
         :param p: Power parameter for the Minkowski metric. When p = 1, this is equivalent to using manhattan_distance (l1),
         and euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.
@@ -17,7 +17,10 @@ class NNC:
         self.gamma = 1
         self.S_gamma = list()
         self.algorithm = algorithm
-        self.dist = Metric(metric=metric, p=p)
+        if callable(metric):
+            self.dist = metric
+        else:
+            self.dist = Metric(metric, p)
         self.x1 = None
         self.x2 = None
         self.scale = None
@@ -78,7 +81,7 @@ class NNC:
         for p in X:
             b = True
             for q in self.S_gamma:
-                b &= (self.dist(p, q) >= self.gamma)
+                b &= (self.dist(p, q)/self.scale >= self.gamma)
                 if not b:
                     break
             if b:
@@ -92,12 +95,12 @@ class NNC:
             for j, p in enumerate(X):
                 b = True
                 for q in X[y != y[j]]:
-                    b &= self.dist(p, q) >= np.power(2., i + 1)
+                    b &= self.dist(p, q)/self.scale >= np.power(2., i + 1)
                     if not b:
                         break
                 if b:
                     for p_ in X:
-                        if (np.any(p != p_)) and (self.dist(p, p_) < np.power(2.0, i) - self.gamma):
+                        if (np.any(p != p_)) and (self.dist(p, p_)/self.scale < np.power(2.0, i) - self.gamma):
                             np.delete(S_gama, np.where(np.atleast_1d(np.all(S_gama == p_)).nonzero()))
 
         return S_gama
@@ -113,6 +116,6 @@ class NNC:
         return index
 
     def __str__(self):
-        return "NNC(algorithm='{alg}', metric='{mtr}', p={p}".format(alg=self.algorithm,
+        return "NNC(algorithm='{alg}', metric='{mtr}', p={p})".format(alg=self.algorithm,
                                                                      mtr=self.dist.metric,
                                                                      p=self.dist.p)
