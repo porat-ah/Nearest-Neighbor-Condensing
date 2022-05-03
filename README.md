@@ -1,5 +1,5 @@
 ## Nearest-Neighbor-Condensing Implementation ##
-___
+
 This repository implements algorithm 1 and 2 from : [Near-optimal sample compression for nearest neighbors](https://arxiv.org/abs/1404.3368)
 ___
 Usage
