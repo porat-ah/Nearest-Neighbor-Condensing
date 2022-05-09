@@ -1,7 +1,6 @@
 import unittest
 
 import numpy as np
-
 from NNC import NNC, Metric
 from sklearn.datasets import make_classification
 from sklearn.preprocessing import minmax_scale
@@ -67,6 +66,7 @@ class MyTestCase(unittest.TestCase):
         X_new[:, 1] = (X_new[:, 1] - self.X[:, 1].min()) / (self.X[:, 1].max() - self.X[:, 1].min())
         self.X = minmax_scale(self.X, feature_range=(0, 1))
         scale = dist_function(np.ones_like(self.X[0]), np.zeros_like(self.X[0]))
+
         for i, x in enumerate(self.X):
             margin = 1
             index = 0
@@ -75,10 +75,7 @@ class MyTestCase(unittest.TestCase):
                 if margin > _margin:
                     margin = _margin
                     index = j
-            try:
-                self.assertEqual(self.y[i], y_new[index])
-            except:
-                print("p")
+            self.assertEqual(self.y[i], y_new[index], "i = " + str(i) + "index = " + str(index))
 
     def find_margin_2_classes(self, X, y, metric):
         X = minmax_scale(X, feature_range=(0, 1))

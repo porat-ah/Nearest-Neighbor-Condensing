@@ -1,7 +1,7 @@
 ## Nearest-Neighbor-Condensing Implementation ##
 
 This repository implements algorithm 1 and 2 from : [Near-optimal sample compression for nearest neighbors](https://arxiv.org/abs/1404.3368)
-___
+
 Usage
 ___
 this API follows the Scikit Learn API structure.
@@ -19,7 +19,7 @@ first you create an object:
 example
 ___
 ```
-"X = np.array([
+X = np.array([
                 [4, 1],
                 [3, 1],
                 [2, 1],
@@ -35,7 +35,7 @@ y = np.array([0,0,0,0,0,1,1,1,1,1])
 
 nnc = NNC(algorithm= "prune", metric= "minkowski", p= 2, n_jobs= -1)
 nnc.fit(X,y)
->>> NNC(algorithm='prune', metric='minkowski', p=2)
+>>> NNC(algorithm='prune', metric='minkowski')
 nnc.transform(X,y)
 >>> (array([[4., 1.],
        [3., 1.],
