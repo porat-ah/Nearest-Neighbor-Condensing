@@ -1,50 +1,43 @@
-from sklearn.datasets import make_classification
-from sklearn.preprocessing import minmax_scale
+from time import time
+import mnist
+from sklearn.utils import shuffle
+from sklearn.svm import SVC
 import seaborn as sns
 import matplotlib.pyplot as plt
-import numpy as np
 from NNC import NNC
+from sklearn.metrics import confusion_matrix, classification_report
 
 
 def main():
-    arr1 = np.array([
-        [1, 2],
-        [3, 4],
-        [5, 6],
-        [7, 8]
-    ])
-    arr2 = np.array([
-        [1, 2],
-        [5, 6]
-    ])
-    print(find_common_arrays_location(arr1,arr2))
+    X_train, y_train = shuffle(mnist.train_images(), mnist.train_labels())
+    X_test, y_test = shuffle(mnist.test_images(), mnist.test_labels())
+    X_train = X_train.reshape((60_000, 28 * 28))[y_train <= 2]
+    y_train = y_train[y_train <= 2]
+    X_test = X_test.reshape((10_000, 28 * 28))[y_test <= 2]
+    y_test = y_test[y_test <= 2]
+    start = time()
+    nnc = NNC(algorithm="prune", metric="euclidean", n_jobs=-1)
+    nnc.fit(X_train, y_train)
+    print("NNC fit time = {:.3f}".format(time() - start))
 
-    # x, y = make_classification(n_samples=1000, n_features=2, n_redundant=0, n_clusters_per_class=2, random_state=30,
-    #                            flip_y=0, shuffle=False, class_sep=2)
-    # nnc = NNC(metric="chebyshev")
-    # nnc.fit(x, y)
-    # x = minmax_scale(x, feature_range=(0, 1))
-    # _x = np.array([nnc.x1, nnc.x2])
-    # x_new = nnc.transform(x)
-    # mask = np.isin(x, x_new)
-    # mask = mask[: ,0] & mask[:,1]
-    # print(mask)
-    # y_new = y[mask]
-    # plt.figure("fig1")
-    # plt.scatter(x=x_new[:, 0], y=x_new[:, 1], color="r")
-    # sns.scatterplot(x=x[:, 0], y=x[:, 1], hue=y)
-    # # plt.figure("fig2")
-    # plt.show()
+    start = time()
+    X_reduced_nnc, y_reduced_nnc = nnc.transform(X_train, y_train)
+    print("NNC transform time = {:.3f}".format(time() - start))
+    print("from size : ", X_train.shape[0], " to : ", X_reduced_nnc.shape[0])
 
+    start = time()
+    svm = SVC(C=3, degree=1)
+    svm.fit(X_reduced_nnc, y_reduced_nnc)
+    print("SVM fit time = {:.3f}".format(time() - start))
 
-def find_common_arrays_location(arr1, arr2):
-    index = []
-    for i, a in enumerate(arr1):
-        for j, b in enumerate(arr2):
-            if np.all(a == b):
-                index.append([i, j])
-                break
-    return index
+    start = time()
+    y_pred_nnc = svm.predict(X_test)
+    print("SVM predict time = {:.3f}".format(time() - start))
+
+    print(classification_report(y_true=y_test, y_pred=y_pred_nnc))
+
+    sns.heatmap(confusion_matrix(y_true=y_test, y_pred=y_pred_nnc), annot=True)
+    plt.show()
 
 
 if __name__ == '__main__':
