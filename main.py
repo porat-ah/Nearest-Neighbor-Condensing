@@ -18,11 +18,11 @@ def main():
     start = time()
     nnc = NNC(algorithm="prune", metric="euclidean", n_jobs=-1, verbose= True)
     nnc.fit(X_train, y_train)
-    print("NNC fit time = {:.3f}".format(time() - start))
+    print("\nNNC fit time = {:.3f}".format(time() - start))
 
     start = time()
     X_reduced_nnc, y_reduced_nnc = nnc.transform(X_train, y_train)
-    print("NNC transform time = {:.3f}".format(time() - start))
+    print("\nNNC transform time = {:.3f}".format(time() - start))
     print("from size : ", X_train.shape[0], " to : ", X_reduced_nnc.shape[0])
 
     start = time()
