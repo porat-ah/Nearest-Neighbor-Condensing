@@ -94,7 +94,9 @@ class NNC:
 
     def brute(self, X: np.ndarray, y=None):
         self.S_gamma.append(X[0])
-        for p in tqdm(X, disable= self.verbose):
+        bar = tqdm(X, disable= self.verbose)
+        for p in bar:
+            bar.set_description("S_gamma size = {}".format(len(self.S_gamma)))
             if self.min_pairwise_distance([p], self.S_gamma) >= self.gamma - NNC.EPS:
                 self.S_gamma.append(p)
         return np.unique(np.array(self.S_gamma), axis=0)
@@ -119,7 +121,7 @@ class NNC:
     def find_common_arrays_location(self, arr1, arr2):
         index = []
         for i, a in tqdm(enumerate(arr1), disable=self.verbose):
-            for j, b in tqdm(enumerate(arr2), disable=self.verbose):
+            for j, b in enumerate(arr2):
                 if np.all(a == b):
                     index.append([i, j])
                     break
