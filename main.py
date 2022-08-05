@@ -16,7 +16,7 @@ def main():
     X_test = X_test.reshape((10_000, 28 * 28))[y_test <= 2]
     y_test = y_test[y_test <= 2]
     start = time()
-    nnc = NNC(algorithm="prune", metric="euclidean", n_jobs=-1)
+    nnc = NNC(algorithm="prune", metric="euclidean", n_jobs=-1, verbose= True)
     nnc.fit(X_train, y_train)
     print("NNC fit time = {:.3f}".format(time() - start))
 

@@ -3,17 +3,27 @@ import numpy as np
 from numpy import floor, log
 from sklearn.preprocessing import minmax_scale
 from sklearn.metrics.pairwise import pairwise_distances
+from tqdm import tqdm
 
 
 class NNC:
     EPS = 0.0001
-    def __init__(self, algorithm="brute", metric="minkowski", p=2, n_jobs=1):
+    def __init__(self, algorithm="brute", metric="minkowski", p=2, n_jobs=1, verbose = False):
         """
-        :param algorithm:{"brute" , "prune"} Algorithm used to compute the cardinality subset.
-        :param metric:{"euclidean", "manhattan", "minkowski", "chebyshev"} or a callable function. Distance metric to use for finding gamma.
+        :param algorithm:{'brute' , 'prune'}  default=’brute’
+        Algorithm used to compute the cardinality subset.
+        :param metric:{'euclidean', 'manhattan', 'minkowski', 'chebyshev'} or callable, default=’minkowski’
+         Distance metric to use for finding gamma.
         The default metric is minkowski, and with p=2 is equivalent to the standard Euclidean metric.
-        :param p: Power parameter for the Minkowski metric. When p = 1, this is equivalent to using manhattan_distance (l1),
+        :param p: int, default=2
+        Power parameter for the Minkowski metric. When p = 1, this is equivalent to using manhattan_distance (l1),
         and euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.
+        :param n_jobs: int, default=1
+        The number of jobs to use for the computation.
+        This works by breaking down the pairwise matrix into n_jobs even slices and computing them in parallel.
+        None means 1 unless in a joblib.parallel_backend context. -1 means using all processors.
+        :param verbose:boolean, default=False
+        show progress bar
         """
         self.gamma = 1
         self.S_gamma = list()
@@ -26,6 +36,7 @@ class NNC:
             self.dist = (False, Metric(metric, p), metric)
         self.scale = None
         self.n_jobs = n_jobs
+        self.verbose = not verbose
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         """
@@ -42,9 +53,14 @@ class NNC:
             groups.append(X[y == label])
         for i in range(len(groups)):
             for j in range(i + 1, len(groups)):
-                i_j_distances = self.min_pairwise_distance(groups[i], groups[j])
-                if self.gamma > i_j_distances:
-                    self.gamma = i_j_distances
+                if groups[i].shape[0] > groups[j].shape[0]:
+                    tmp = i
+                    i = j
+                    j = tmp
+                for p in tqdm(groups[i], disable=self.verbose):
+                    i_j_distances = self.min_pairwise_distance([p], groups[j])
+                    if self.gamma > i_j_distances:
+                        self.gamma = i_j_distances
         return self
 
     def transform(self, X: np.ndarray, y: np.ndarray):
@@ -78,7 +94,7 @@ class NNC:
 
     def brute(self, X: np.ndarray, y=None):
         self.S_gamma.append(X[0])
-        for p in X:
+        for p in tqdm(X, disable= self.verbose):
             if self.min_pairwise_distance([p], self.S_gamma) >= self.gamma - NNC.EPS:
                 self.S_gamma.append(p)
         return np.unique(np.array(self.S_gamma), axis=0)
@@ -102,8 +118,8 @@ class NNC:
 
     def find_common_arrays_location(self, arr1, arr2):
         index = []
-        for i, a in enumerate(arr1):
-            for j, b in enumerate(arr2):
+        for i, a in tqdm(enumerate(arr1), disable=self.verbose):
+            for j, b in tqdm(enumerate(arr2), disable=self.verbose):
                 if np.all(a == b):
                     index.append([i, j])
                     break

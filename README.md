@@ -16,28 +16,29 @@ first you create an object:
 
 `n_jobs` - the number of cpus to use , -1 for all cpus.
 
+`verbose` - show progress bar
+
 example
 ___
 ```
-X = np.array([
-                [4, 1],
-                [3, 1],
-                [2, 1],
-                [2.5, 0.5],
-                [3.5, 0.5],
-                [4, 2],
-                [3, 2],
-                [2, 2],
-                [2.5, 2.5],
-                [3.5, 2.5]
-            ])
-y = np.array([0,0,0,0,0,1,1,1,1,1])
-
-nnc = NNC(algorithm= "prune", metric= "minkowski", p= 2, n_jobs= -1)
-nnc.fit(X,y)
->>> NNC(algorithm='prune', metric='minkowski')
-nnc.transform(X,y)
->>> (array([[4., 1.],
+>>> X = np.array([
+...             [4, 1],
+...             [3, 1],
+...             [2, 1],
+...             [2.5, 0.5],
+...             [3.5, 0.5],
+...             [4, 2],
+...             [3, 2],
+...             [2, 2],
+...             [2.5, 2.5],
+...             [3.5, 2.5]
+...         ])
+>>> y = np.array([0,0,0,0,0,1,1,1,1,1])
+>>> nnc = NNC(algorithm= "prune", metric= "minkowski", p= 2, n_jobs= -1)
+>>> nnc.fit(X,y)
+NNC(algorithm='prune', metric='minkowski')
+>>> nnc.transform(X,y)
+(array([[4., 1.],
        [3., 1.],
        [2., 1.],
        [4., 2.],
