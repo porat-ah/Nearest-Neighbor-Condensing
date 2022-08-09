@@ -9,21 +9,22 @@ from tqdm import tqdm
 class NNC:
     EPS = 0.0001
     def __init__(self, algorithm="brute", metric="minkowski", p=2, n_jobs=1, verbose = False):
+
         """
-        :param algorithm:{'brute' , 'prune'}  default=’brute’
-        Algorithm used to compute the cardinality subset.
-        :param metric:{'euclidean', 'manhattan', 'minkowski', 'chebyshev'} or callable, default=’minkowski’
-         Distance metric to use for finding gamma.
-        The default metric is minkowski, and with p=2 is equivalent to the standard Euclidean metric.
+        :param algorithm: {'brute' , 'prune'}  default=’brute’
+                Algorithm used to compute the cardinality subset.
+        :param metric: {'euclidean', 'manhattan', 'minkowski', 'chebyshev'} or callable, default=’minkowski’
+                Distance metric to use for finding gamma.
+                The default metric is minkowski, and with p=2 is equivalent to the standard Euclidean metric.
         :param p: int, default=2
-        Power parameter for the Minkowski metric. When p = 1, this is equivalent to using manhattan_distance (l1),
-        and euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.
+                Power parameter for the Minkowski metric. When p = 1, this is equivalent to using manhattan_distance (l1),
+                and euclidean_distance (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.
         :param n_jobs: int, default=1
-        The number of jobs to use for the computation.
-        This works by breaking down the pairwise matrix into n_jobs even slices and computing them in parallel.
-        None means 1 unless in a joblib.parallel_backend context. -1 means using all processors.
-        :param verbose:boolean, default=False
-        show progress bar
+                The number of jobs to use for the computation.
+                This works by breaking down the pairwise matrix into n_jobs even slices and computing them in parallel.
+                None means 1 unless in a joblib.parallel_backend context. -1 means using all processors.
+        :param verbose: boolean, default=False
+                show progress bar
         """
         self.gamma = 1
         self.S_gamma = list()
@@ -90,7 +91,7 @@ class NNC:
         :return: (numpy array , numpy array) : (X_new - Cardinality subset of X , y_new - Target values of X_new)
         """
         self.fit(X, y)
-        self.transform(X, y)
+        return self.transform(X, y)
 
     def brute(self, X: np.ndarray, y=None):
         self.S_gamma.append(X[0])
