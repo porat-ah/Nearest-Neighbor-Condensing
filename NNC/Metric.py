@@ -4,7 +4,6 @@ from scipy.spatial.distance import euclidean, chebyshev, minkowski
 
 class Metric:
 
-
     def __init__(self, metric="minkowski", p=2):
         """
         :param metric:{"euclidean", "manhattan", "minkowski", "chebyshev"} Distance metric to use for finding gamma.

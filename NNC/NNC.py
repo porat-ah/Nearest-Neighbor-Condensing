@@ -8,7 +8,8 @@ from tqdm import tqdm
 
 class NNC:
     EPS = 0.0001
-    def __init__(self, algorithm="brute", metric="minkowski", p=2, n_jobs=1, verbose = False):
+
+    def __init__(self, algorithm="brute", metric="minkowski", p=2, n_jobs=1, verbose=False):
 
         """
         :param algorithm: {'brute' , 'prune'}  default=’brute’
@@ -48,6 +49,7 @@ class NNC:
         :return: self
         """
         X = minmax_scale(X, feature_range=(0, 1))
+        y = np.array(y)
         self.scale = self.dist[1](np.ones_like(X[0]), np.zeros_like(X[0]))
         groups = []
         for label in np.unique(y):
@@ -72,14 +74,15 @@ class NNC:
         :param y: numpy array , Target values
         :return: (numpy array , numpy array) : (X_new - Cardinality subset of X , y_new - Target values of X_new)
         """
-        _X = minmax_scale(X, feature_range=(0, 1))
-        X_new = self.brute(_X)
-        mask = np.array(self.find_common_arrays_location(_X, X_new))
+        X = minmax_scale(X, feature_range=(0, 1))
+        y = np.array(y)
+        X_new = self.brute(X)
+        mask = np.array(self.find_common_arrays_location(X, X_new))
         if self.algorithm == "prune":
             y_new = np.zeros_like(X_new[:, 0])
             y_new[mask[:, 1]] = y[mask[:, 0]]
             X_new = self.prune(X_new, y_new)
-            mask = np.array(self.find_common_arrays_location(_X, X_new))
+            mask = np.array(self.find_common_arrays_location(X, X_new))
         return X[mask[:, 0]], y[mask[:, 0]]
 
     def fit_transform(self, X: np.ndarray, y: np.ndarray):
@@ -95,7 +98,7 @@ class NNC:
 
     def brute(self, X: np.ndarray, y=None):
         self.S_gamma.append(X[0])
-        bar = tqdm(X, disable= self.verbose)
+        bar = tqdm(X, disable=self.verbose)
         for p in bar:
             bar.set_description("S_gamma size = {}".format(len(self.S_gamma)))
             if self.min_pairwise_distance([p], self.S_gamma) >= self.gamma - NNC.EPS:
