@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-from NNC import NNC, Metric
+from nnc import NNC, Metric
 from sklearn.datasets import make_classification
 from sklearn.preprocessing import minmax_scale
 import warnings

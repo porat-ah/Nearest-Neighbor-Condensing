@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from NNC.Metric import Metric
+from nnc.Metric import Metric
 
 
 class MyTestCase(unittest.TestCase):

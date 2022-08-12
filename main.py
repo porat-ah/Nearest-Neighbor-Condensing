@@ -4,7 +4,7 @@ from sklearn.utils import shuffle
 from sklearn.svm import SVC
 import seaborn as sns
 import matplotlib.pyplot as plt
-from NNC import NNC
+from nnc import NNC
 from sklearn.metrics import confusion_matrix, classification_report
 
 
@@ -18,11 +18,11 @@ def main():
     start = time()
     nnc = NNC(algorithm="prune", metric="euclidean", n_jobs=-1, verbose= True)
     nnc.fit(X_train, y_train)
-    print("\nNNC fit time = {:.3f}".format(time() - start))
+    print("\nnnc fit time = {:.3f}".format(time() - start))
 
     start = time()
     X_reduced_nnc, y_reduced_nnc = nnc.transform(X_train, y_train)
-    print("\nNNC transform time = {:.3f}".format(time() - start))
+    print("\nnnc transform time = {:.3f}".format(time() - start))
     print("from size : ", X_train.shape[0], " to : ", X_reduced_nnc.shape[0])
 
     start = time()
