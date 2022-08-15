@@ -29,7 +29,7 @@ REQUIRED = [
 
 # What packages are optional?
 EXTRAS = {
-    'mnist', 'matplotlib', 'seaborn'
+    'main': ['mnist', 'matplotlib', 'seaborn']
 }
 
 # The rest you shouldn't have to touch too much :)

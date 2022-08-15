@@ -62,8 +62,6 @@ class MyTestCase(unittest.TestCase):
         nnc = NNC(algorithm=algorithm, metric=metric)
         nnc.fit(X=self.X, y=self.y)
         X_new, y_new = nnc.transform(self.X, self.y)
-        X_new[:, 0] = (X_new[:, 0] - self.X[:, 0].min()) / (self.X[:, 0].max() - self.X[:, 0].min())
-        X_new[:, 1] = (X_new[:, 1] - self.X[:, 1].min()) / (self.X[:, 1].max() - self.X[:, 1].min())
         self.X = minmax_scale(self.X, feature_range=(0, 1))
         scale = dist_function(np.ones_like(self.X[0]), np.zeros_like(self.X[0]))
 
@@ -75,7 +73,7 @@ class MyTestCase(unittest.TestCase):
                 if margin > _margin:
                     margin = _margin
                     index = j
-            self.assertEqual(self.y[i], y_new[index], "i = " + str(i) + "index = " + str(index))
+            self.assertEqual(self.y[i], y_new[index], "i = " + str(i) + " index = " + str(index))
 
     def find_margin_2_classes(self, X, y, metric):
         X = minmax_scale(X, feature_range=(0, 1))

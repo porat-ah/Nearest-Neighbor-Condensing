@@ -12,7 +12,7 @@ class NNC:
     def __init__(self, algorithm="brute", metric="minkowski", p=2, n_jobs=1, verbose=False):
 
         """
-        :param algorithm: {'brute' , 'prune'}  default=’brute’
+        :param algorithm: {'brute' , 'prune'},  default=’brute’
                 Algorithm used to compute the cardinality subset.
         :param metric: {'euclidean', 'manhattan', 'minkowski', 'chebyshev'} or callable, default=’minkowski’
                 Distance metric to use for finding gamma.
