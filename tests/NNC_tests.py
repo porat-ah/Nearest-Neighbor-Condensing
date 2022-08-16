@@ -62,8 +62,8 @@ class MyTestCase(unittest.TestCase):
         nnc = NNC(algorithm=algorithm, metric=metric)
         nnc.fit(X=self.X, y=self.y)
         X_new, y_new = nnc.transform(self.X, self.y)
-        self.X = minmax_scale(self.X, feature_range=(0, 1))
-        scale = dist_function(np.ones_like(self.X[0]), np.zeros_like(self.X[0]))
+        # self.X = minmax_scale(self.X, feature_range=(0, 1))
+        scale = dist_function(np.full_like(self.X[0], np.max(self.X)), np.full_like(self.X[0], np.min(self.X)))
 
         for i, x in enumerate(self.X):
             margin = 1
@@ -76,16 +76,15 @@ class MyTestCase(unittest.TestCase):
             self.assertEqual(self.y[i], y_new[index], "i = " + str(i) + " index = " + str(index))
 
     def find_margin_2_classes(self, X, y, metric):
-        X = minmax_scale(X, feature_range=(0, 1))
         dist_function = Metric(metric)
-        margin = 1
+        scale = dist_function(np.full_like(X[0], np.max(X)), np.full_like(X[0], np.min(X)))
+        margin = scale
         X1 = X[y == np.unique(y)[0]]
         X2 = X[y == np.unique(y)[1]]
         x1 = x2 = None
-        scale = dist_function(np.ones_like(X[0]), np.zeros_like(X[0]))
         for p1 in X1:
             for p2 in X2:
-                _margin = dist_function(p1, p2) / scale
+                _margin = dist_function(p1, p2)
                 if margin > _margin:
                     margin = _margin
                     x1 = p1

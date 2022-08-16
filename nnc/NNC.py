@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 
 class NNC:
-    EPS = 0.0001
+    EPS = 0.00001
 
     def __init__(self, algorithm="brute", metric="minkowski", p=2, n_jobs=1, verbose=False):
 
@@ -27,7 +27,7 @@ class NNC:
         :param verbose: boolean, default=False
                 show progress bar
         """
-        self.gamma = 1
+        self.gamma = None
         self.S_gamma = list()
         self.algorithm = algorithm
         if callable(metric):
@@ -48,9 +48,10 @@ class NNC:
         :param y: numpy array , Target values
         :return: self
         """
-        X = minmax_scale(X, feature_range=(0, 1))
+        X = np.array(X)
         y = np.array(y)
-        self.scale = self.dist[1](np.ones_like(X[0]), np.zeros_like(X[0]))
+        self.scale = self.dist[1](np.full_like(X[0], np.max(X)), np.full_like(X[0], np.min(X)))
+        self.gamma = self.scale
         groups = []
         for label in np.unique(y):
             groups.append(X[y == label])
@@ -74,7 +75,7 @@ class NNC:
         :param y: numpy array , Target values
         :return: (numpy array , numpy array) : (X_new - Cardinality subset of X , y_new - Target values of X_new)
         """
-        X = minmax_scale(X, feature_range=(0, 1))
+        X = np.array(X)
         y = np.array(y)
         X_new = self.brute(X)
         mask = np.array(self.find_common_arrays_location(X, X_new))
@@ -105,28 +106,27 @@ class NNC:
                 self.S_gamma.append(p)
         return np.unique(np.array(self.S_gamma), axis=0)
 
-    def prune(self, X: np.ndarray, y: np.ndarray) -> np.array:
-        S_gama = X.copy()
-        pruning_levels = np.flip(range(floor(log(self.gamma)).astype(int), 2))
+    def prune(self, X: np.ndarray, y: np.ndarray):
+        S_gamma = X.copy()
+        pruning_levels = np.flip(range(floor(log(self.gamma/self.scale)).astype(int), 2))
         for i in pruning_levels:
             for j, p in enumerate(X):
                 b = True
                 for q in X[y != y[j]]:
-                    b &= self.dist[1](p, q) / self.scale >= np.power(2., i + 1) - NNC.EPS
+                    b &= self.dist[1](p, q) >= np.power(2., i + 1) - NNC.EPS
                     if not b:
                         break
                 if b:
                     for p_ in X:
-                        if (np.any(p != p_)) and (self.dist[1](p, p_) / self.scale < np.power(2.0, i) - self.gamma):
-                            np.delete(S_gama, np.where(np.atleast_1d(np.all(S_gama == p_)).nonzero()))
-
-        return S_gama
+                        if (np.any(p != p_)) and (self.dist[1](p, p_) < np.power(2.0, i) - self.gamma/self.scale):
+                            np.delete(S_gamma, np.where(np.atleast_1d(np.all(S_gamma == p_)).nonzero()))
+        return S_gamma
 
     def find_common_arrays_location(self, arr1, arr2):
         index = []
-        for i, a in tqdm(enumerate(arr1), disable=self.verbose):
+        for i in tqdm(range(len(arr1)), disable=self.verbose):
             for j, b in enumerate(arr2):
-                if np.all(a == b):
+                if np.all(arr1[i] == b):
                     index.append([i, j])
                     break
         return index
@@ -134,10 +134,10 @@ class NNC:
     def min_pairwise_distance(self, g1, g2):
         if self.dist[0]:
             return np.min(
-                pairwise_distances(g1, g2, metric=self.dist[1], n_jobs=self.n_jobs) / self.scale)
+                pairwise_distances(g1, g2, metric=self.dist[1], n_jobs=self.n_jobs))
         else:
             return np.min(
-                pairwise_distances(g1, g2, metric=self.dist[2], n_jobs=self.n_jobs) / self.scale)
+                pairwise_distances(g1, g2, metric=self.dist[2], n_jobs=self.n_jobs))
 
     def __str__(self):
         return "NNC(algorithm='{alg}', metric='{mtr}')".format(alg=self.algorithm,
