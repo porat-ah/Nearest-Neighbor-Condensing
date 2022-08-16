@@ -1,11 +1,58 @@
 ## Nearest-Neighbor-Condensing Implementation ##
 
+# Content
+* [Overview](#overview)
+* [Files](#components)
+* [Dependencies](#dependencies)
+* [Local Installation](#local-installation)
+* [Usage](#usage)
+* [Example](#example)
+* [References](#references)
+---
+## Overview
+---
 This repository implements algorithm 1 and 2 from : [Near-optimal sample compression for nearest neighbors](https://arxiv.org/abs/1404.3368)
 
-Usage
-___
-this API follows the Scikit Learn API structure.
-first you create an object: 
+---
+## Files
+---
+
+**nnc/NNC.py** - the implementation of the algorithm
+
+**nnc/Metric.py** - a class for calculating distance
+
+**tests/*** - unit testing 
+
+**main.py** -  an example run of the library on the mnist dataset.
+
+---
+## Dependencies
+---
+### Libraries:
+* numpy~=1.19.5
+* scikit-learn~=1.0.2
+* tqdm~=4.64.0
+* scipy~=1.7.3
+* setuptools~=61.2.0
+* pandas~=1.1.0
+### Backend:
+* python ( => 3.6)
+
+---
+# Local Installation
+---
+clone the repository and navigate to it:
+``` sh
+$ git clone https://github.com/porat-ah/Nearest-Neighbor-Condensing.git
+$ cd Nearest-Neighbor-Condensing
+```
+---
+## Usage
+---
+```
+1. from nnc import *
+
+2. create an object: 
 `NNC(algorithm, metric, p, n_jobs)`
 
 `algorithm`- determine if its algorithm 1 (`"brute"`) or algorithm 2 (`"prune"`) from the article.
@@ -18,8 +65,18 @@ first you create an object:
 
 `verbose` - show progress bar
 
-example
-___
+3. nnc.fit(X, y)
+
+4. X_new , y_new = nnc.transfrom(X,y)
+
+you can run steps 3,4 together using:
+X_new , y_new = nnc.fit_transform(X, y)
+
+```
+
+---
+## example
+---
 ```
 >>> X = np.array([
 ...             [4, 1],
@@ -45,4 +102,8 @@ NNC(algorithm='prune', metric='minkowski')
        [3., 2.],
        [2., 2.]]), array([0, 0, 0, 1, 1, 1]))
 ```
-See `main.py` for an example on the mnist dataset.
+---
+## References
+---
+* Article : [Near-optimal sample compression for nearest neighbors](https://arxiv.org/abs/1404.3368)
+
