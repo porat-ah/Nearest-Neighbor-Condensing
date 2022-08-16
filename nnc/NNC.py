@@ -108,18 +108,25 @@ class NNC:
 
     def prune(self, X: np.ndarray, y: np.ndarray):
         S_gamma = X.copy()
-        pruning_levels = np.flip(range(floor(log(self.gamma/self.scale)).astype(int), 2))
-        for i in pruning_levels:
-            for j, p in enumerate(X):
+        pruning_levels = np.flip(range(floor(log(self.gamma)).astype(int), 2))
+        for i in tqdm(pruning_levels, disable=self.verbose):
+            j = 0
+            while j < len(S_gamma):
+                p = S_gamma[j]
                 b = True
-                for q in X[y != y[j]]:
+                for q in S_gamma[y != y[j]]:
                     b &= self.dist[1](p, q) >= np.power(2., i + 1) - NNC.EPS
                     if not b:
                         break
                 if b:
-                    for p_ in X:
-                        if (np.any(p != p_)) and (self.dist[1](p, p_) < np.power(2.0, i) - self.gamma/self.scale):
-                            np.delete(S_gamma, np.where(np.atleast_1d(np.all(S_gamma == p_)).nonzero()))
+                    for p_ in S_gamma:
+                        if (np.any(p != p_)) and (self.dist[1](p, p_) < np.power(2.0, i) - self.gamma):
+                            for k, s in enumerate(S_gamma):
+                                if np.all(s == p_):
+                                    S_gamma = np.delete(S_gamma, k, axis=0)
+                                    y = np.delete(y, k, axis=0)
+                                    break
+                j += 1
         return S_gamma
 
     def find_common_arrays_location(self, arr1, arr2):
